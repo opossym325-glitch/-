@@ -1,0 +1,30 @@
+{
+  "name": "company/marketplace-account-automation-service",
+  "description": "Jira to 1C marketplace account automation",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "php": ">=8.4",
+    "ext-json": "*",
+    "ext-rdkafka": "*",
+    "ext-redis": "*",
+    "symfony/console": "8.1.*",
+    "symfony/dotenv": "8.1.*",
+    "symfony/framework-bundle": "8.1.*",
+    "symfony/http-client": "8.1.*",
+    "symfony/messenger": "8.1.*",
+    "symfony/monolog-bundle": "^3.10",
+    "symfony/redis-messenger": "8.1.*",
+    "symfony/runtime": "8.1.*",
+    "symfony/scheduler": "8.1.*",
+    "symfony/uid": "8.1.*",
+    "symfony/validator": "8.1.*",
+    "symfony/yaml": "8.1.*"
+  },
+  "require-dev": {"phpunit/phpunit": "^12.0"},
+  "autoload": {"psr-4": {"App\\": "src/"}},
+  "autoload-dev": {"psr-4": {"App\\Tests\\": "tests/"}},
+  "config": {"allow-plugins": {"symfony/flex": true, "symfony/runtime": true}, "sort-packages": true},
+  "scripts": {"test": "phpunit", "check": ["@validate", "@test"], "validate": "composer validate --strict"},
+  "extra": {"symfony": {"allow-contrib": false, "require": "8.1.*"}}
+}

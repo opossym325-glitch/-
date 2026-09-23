@@ -1,0 +1,29 @@
+services:
+  app:
+    build: { context: ., dockerfile: docker/Dockerfile }
+    env_file: .env
+    depends_on: [redis]
+  scheduler:
+    build: { context: ., dockerfile: docker/Dockerfile }
+    env_file: .env
+    command: ["php", "bin/console", "messenger:consume", "scheduler_jira", "--time-limit=3600"]
+    depends_on: [redis]
+  kafka-consumer:
+    build: { context: ., dockerfile: docker/Dockerfile }
+    env_file: .env
+    command: ["php", "bin/console", "app:kafka:consume-results"]
+    depends_on: [redis]
+  redis:
+    image: redis:7-alpine
+  kafka:
+    image: apache/kafka:3.9.1
+    profiles: [local-kafka]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1

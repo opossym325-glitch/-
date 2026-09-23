@@ -1,0 +1,10 @@
+framework:
+  secret: '%env(APP_SECRET)%'
+  http_method_override: false
+  messenger:
+    transports:
+      async: '%env(MESSENGER_TRANSPORT_DSN)%'
+    routing:
+      App\Message\CheckJiraIssuesMessage: async
+  validation:
+    enabled: true

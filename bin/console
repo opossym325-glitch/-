@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
+    throw new LogicException('Сначала выполните composer install.');
+}
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+return static function (array $context): Application {
+    // Создаём стандартное Symfony console-приложение с окружением из runtime.
+    return new Application(new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']));
+};

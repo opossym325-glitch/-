@@ -1,0 +1,53 @@
+parameters:
+  app.jira_field_mapping: '%env(json:JIRA_FIELD_MAPPING)%'
+
+services:
+  _defaults: { autowire: true, autoconfigure: true }
+  App\: { resource: '../src/' }
+
+  App\Processing\ProcessingStateRepository: '@App\Processing\RedisProcessingStateRepository'
+  App\Kafka\MessagePublisher: '@App\Kafka\KafkaProducer'
+
+  App\Jira\JiraClient:
+    arguments:
+      $baseUrl: '%env(JIRA_BASE_URL)%'
+      $projectKey: '%env(JIRA_PROJECT_KEY)%'
+      $issueType: '%env(JIRA_ISSUE_TYPE)%'
+      $readyStatus: '%env(JIRA_READY_STATUS)%'
+      $authType: '%env(JIRA_AUTH_TYPE)%'
+      $token: '%env(JIRA_TOKEN)%'
+      $username: '%env(JIRA_USERNAME)%'
+      $password: '%env(JIRA_PASSWORD)%'
+      $maxResults: '%env(int:JIRA_MAX_RESULTS)%'
+
+  App\Jira\JiraIssueMapper:
+    arguments: { $fieldMapping: '%app.jira_field_mapping%' }
+
+  App\Processing\RedisProcessingStateRepository:
+    arguments: { $redisDsn: '%env(REDIS_DSN)%' }
+
+  App\MarketplaceAccount\MarketplaceAccountProcessor:
+    arguments: { $processingEnabled: '%env(bool:PROCESSING_ENABLED)%' }
+
+  App\Kafka\KafkaProducer:
+    arguments:
+      $brokers: '%env(KAFKA_BROKERS)%'
+      $securityProtocol: '%env(KAFKA_SECURITY_PROTOCOL)%'
+      $saslMechanism: '%env(KAFKA_SASL_MECHANISM)%'
+      $username: '%env(KAFKA_USERNAME)%'
+      $password: '%env(KAFKA_PASSWORD)%'
+      $topic: '%env(KAFKA_MARKETPLACE_ACCOUNT_CREATE_TOPIC)%'
+
+  App\Kafka\KafkaConsumerCommand:
+    arguments:
+      $brokers: '%env(KAFKA_BROKERS)%'
+      $securityProtocol: '%env(KAFKA_SECURITY_PROTOCOL)%'
+      $saslMechanism: '%env(KAFKA_SASL_MECHANISM)%'
+      $username: '%env(KAFKA_USERNAME)%'
+      $password: '%env(KAFKA_PASSWORD)%'
+      $topic: '%env(KAFKA_MARKETPLACE_ACCOUNT_RESULTS_TOPIC)%'
+      $consumerGroup: '%env(KAFKA_CONSUMER_GROUP)%'
+      $correlationPath: '%env(KAFKA_RESPONSE_CORRELATION_PATH)%'
+
+  App\Scheduler\JiraCheckScheduleProvider:
+    arguments: { $interval: '%env(JIRA_POLL_INTERVAL)%' }
