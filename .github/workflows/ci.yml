@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получить исходный код
+        uses: actions/checkout@v4
+
+      - name: Подготовить PHP 8.4 и обязательные расширения
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: redis, rdkafka
+          coverage: none
+
+      - name: Подготовить безопасную тестовую конфигурацию
+        run: cp .env.example .env
+
+      - name: Проверить composer.json
+        run: composer validate --strict
+
+      - name: Установить зависимости
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Запустить PHPUnit
+        run: vendor/bin/phpunit
+
+      - name: Проверить Symfony container
+        run: php bin/console lint:container
+
+      - name: Проверить Docker Compose
+        run: docker compose config

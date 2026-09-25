@@ -1,0 +1,24 @@
+{
+  "id": "652000",
+  "key": "MARAUT-652",
+  "fields": {
+    "summary": "demo_test",
+    "status": {"name": "Тестовый статус"},
+    "issuetype": {"id": "10002", "name": "Эпика"},
+    "project": {"key": "MARAUT", "name": "Создание ЛК МП"},
+    "created": "2026-09-20T10:00:00.000+0300",
+    "updated": "2026-09-20T11:00:00.000+0300",
+    "customfield_13617": "demo_test",
+    "customfield_13618": {"value": "DBS", "id": "11621", "disabled": false},
+    "customfield_13619": "demo_test",
+    "customfield_13562": null,
+    "customfield_13551": null,
+    "customfield_13583": null,
+    "customfield_13584": null,
+    "customfield_13563": null,
+    "customfield_13549": [
+      {"value": "Склад 1", "id": "20001", "disabled": false},
+      {"value": "Склад 2", "id": "20002", "disabled": false}
+    ]
+  }
+}

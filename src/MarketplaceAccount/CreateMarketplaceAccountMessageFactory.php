@@ -6,17 +6,22 @@ namespace App\MarketplaceAccount;
 
 final class CreateMarketplaceAccountMessageFactory
 {
-    /** @return array<string, string> */
+    /** @return array<string, string|list<string>|null> */
     public function create(MarketplaceAccountData $data, string $correlationId): array
     {
-        // TODO: подтвердить с 1С точную request schema и имя поля correlationId.
+        // DRAFT/UNCONFIRMED: payload нужен только для проверки Kafka pipeline и не является контрактом 1С.
+        // TODO: заменить только эту boundary-фабрику после получения request schema и правила correlation от 1С.
         return [
             'correlationId' => $correlationId,
-            'marketplace' => (string) $data->marketplace,
-            'legalEntity' => (string) $data->legalEntity,
-            'operationScheme' => (string) $data->operationScheme,
-            'marketplaceAccountId' => (string) $data->marketplaceAccountId,
-            'werks' => (string) $data->werks,
+            'marketplace' => $data->marketplace,
+            'operationScheme' => $data->operationScheme,
+            'firmagName' => $data->firmagName,
+            'brand' => $data->brand,
+            'marketplaceAccountId' => $data->marketplaceAccountId,
+            'legalEntityId' => $data->legalEntityId,
+            'legalEntityName' => $data->legalEntityName,
+            'werkId' => $data->werkId,
+            'warehousesWithStock' => $data->warehousesWithStock,
         ];
     }
 }

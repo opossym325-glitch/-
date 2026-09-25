@@ -37,7 +37,7 @@ final readonly class JiraClient
 
         // Используем корпоративно применявшийся Jira REST API v2 и не передаём секреты в логируемые URL.
         $response = $this->http->request('GET', rtrim($this->baseUrl, '/').'/rest/api/2/search', $this->options([
-            'query' => ['jql' => $jql, 'maxResults' => $this->maxResults],
+            'query' => ['jql' => $jql, 'fields' => '*all', 'maxResults' => $this->maxResults],
         ]));
 
         // Технические ответы Jira оставляем исключениями: processor не должен выдавать их за ошибки данных.
@@ -54,12 +54,27 @@ final readonly class JiraClient
             throw new RuntimeException('Jira вернула некорректный ответ search.');
         }
 
-        // Преобразуем транспортный JSON в небольшой Jira DTO, сохраняя mapping отдельно.
+        // Сохраняем системные поля отдельно от custom fields, чтобы идентификация Epic не зависела от будущего контракта 1С.
         return array_map(static function (array $issue): JiraIssue {
             if (!is_string($issue['id'] ?? null) || !is_string($issue['key'] ?? null) || !is_array($issue['fields'] ?? null)) {
                 throw new RuntimeException('Jira issue не содержит id, key или fields.');
             }
-            return new JiraIssue($issue['id'], $issue['key'], $issue['fields']);
+            $fields = $issue['fields'];
+
+            // Jira возвращает status, issuetype и project объектами; DTO хранит их понятные строковые значения.
+            return new JiraIssue(
+                $issue['id'],
+                $issue['key'],
+                $fields,
+                self::nullableString($fields['summary'] ?? null),
+                self::nestedString($fields['status'] ?? null, 'name'),
+                self::nestedString($fields['issuetype'] ?? null, 'id'),
+                self::nestedString($fields['issuetype'] ?? null, 'name'),
+                self::nestedString($fields['project'] ?? null, 'key'),
+                self::nestedString($fields['project'] ?? null, 'name'),
+                self::nullableString($fields['created'] ?? null),
+                self::nullableString($fields['updated'] ?? null),
+            );
         }, $body['issues']);
     }
 
@@ -88,5 +103,17 @@ final readonly class JiraClient
             throw new RuntimeException('Поддерживаются JIRA_AUTH_TYPE bearer и basic.');
         }
         return $options;
+    }
+
+    private static function nullableString(mixed $value): ?string
+    {
+        // Пустые и неожиданные значения system fields не превращаем в вводящие в заблуждение строки.
+        return is_scalar($value) && '' !== trim((string) $value) ? trim((string) $value) : null;
+    }
+
+    private static function nestedString(mixed $value, string $key): ?string
+    {
+        // Для Jira-объектов извлекаем только подтверждённое поле name или key.
+        return is_array($value) ? self::nullableString($value[$key] ?? null) : null;
     }
 }
