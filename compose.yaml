@@ -1,3 +1,5 @@
+name: marketplace-account-automation
+
 services:
   app:
     build: { context: ., dockerfile: docker/Dockerfile }
