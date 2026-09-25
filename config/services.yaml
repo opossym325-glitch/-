@@ -7,6 +7,17 @@ services:
 
   App\Processing\ProcessingStateRepository: '@App\Processing\RedisProcessingStateRepository'
   App\Kafka\MessagePublisher: '@App\Kafka\KafkaProducer'
+  Psr\Log\LoggerInterface: '@Monolog\Logger'
+
+  Monolog\Handler\StreamHandler:
+    arguments:
+      $stream: 'php://stderr'
+      $level: 200
+
+  Monolog\Logger:
+    arguments:
+      $name: 'marketplace_account_automation'
+      $handlers: ['@Monolog\Handler\StreamHandler']
 
   App\Jira\JiraClient:
     arguments:
